@@ -1,1 +1,5 @@
 *.egg-info
+*.json
+*.credentials
+*.sw[po]
+*.py[co]

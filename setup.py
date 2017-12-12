@@ -9,6 +9,6 @@ setup(
     author_email='robertwilliams1985@gmail.com',
     packages=['gphotos_cl'],
     install_requires=[
-          'oauth2client',
+          'google-auth-oauthlib',
     ]
 )
