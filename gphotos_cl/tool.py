@@ -1,26 +1,20 @@
 import argparse
+import json
+
 from xml.etree import ElementTree
 
-from google_auth_oauthlib.flow import InstalledAppFlow
-
-def get_session(client_secrets, scope):
-    flow = InstalledAppFlow.from_client_secrets_file(
-            client_secrets,
-            scopes=[scope]
-    )
-    flow.run_local_server()
-    return flow.authorized_session()
-
-
-gphotos_scope = "https://picasaweb.google.com/data/"
 url_albums = 'https://picasaweb.google.com/data/feed/api/user/default'
+
+from .authorized_session import get_session_from_args
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('client_secrets')
+    parser.add_argument('--client-secrets')
+    parser.add_argument('--authorized-user-file')
+    parser.add_argument('--headless', default=False, action="store_true")
     args = parser.parse_args()
 
-    session = get_session(args.client_secrets, gphotos_scope)
+    session = get_session_from_args(args)
     response = session.get(url_albums)
 
     feed = ElementTree.fromstring(response.content)
@@ -34,7 +28,7 @@ def main():
         albums[album_title.text] = album_id.text
 
     for title, url in albums.iteritems():
-        print("{}\t{}".format(title, url))
+        print("{}\t{}".format(unicode(title), url))
 
 if __name__ == '__main__':
     main()
