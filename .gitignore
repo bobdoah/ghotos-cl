@@ -3,3 +3,5 @@
 *.credentials
 *.sw[po]
 *.py[co]
+*.tox
+*.cache
