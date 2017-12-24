@@ -4,8 +4,7 @@ from gphotos_cl.albums import parse_albums
 
 @pytest.fixture
 def album_data():
-    return """
-    <?xml version='1.0' encoding='utf-8'?>
+    return """<?xml version='1.0' encoding='utf-8'?>
 <feed xmlns='http://www.w3.org/2005/Atom'
     xmlns:openSearch='http://a9.com/-/spec/opensearch/1.1/'
     xmlns:exif='http://schemas.google.com/photos/exif/2007'
@@ -99,13 +98,12 @@ def album_data():
       <media:credit>Liz</media:credit>
     </media:group>
   </entry>
-  ...more entries similar to the one above here...
 </feed>
 """
 
 def test_parser(album_data):
     albums = parse_albums(album_data)
-    assert ['albumID' in albums]
+    assert 'albumID' in albums
     album = albums['albumID'] 
     assert album['title'] == 'lolcats'
     assert album['summary'] == 'Hilarious Felines'
