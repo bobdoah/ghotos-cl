@@ -90,8 +90,7 @@ def album_data():
     <gphoto:nickname>Liz</gphoto:nickname>
     <media:group>
       <media:title type='plain'>lolcats</media:title>
-      <media:description type='plain'>Hilarious
-        Felines</media:description>
+      <media:description type='plain'>Hilarious Felines</media:description>
       <media:keywords></media:keywords>
       <media:content url='https://imagePath/Lolcats.jpg' type='image/jpeg' medium='image' />
       <media:thumbnail url='https://thumbnailPath/Lolcats.jpg' height='160' width='160' />
@@ -103,7 +102,8 @@ def album_data():
 
 def test_parser(album_data):
     albums = parse_albums(album_data)
-    assert 'albumID' in albums
+    assert ['albumID' in albums]
     album = albums['albumID'] 
     assert album['title'] == 'lolcats'
     assert album['summary'] == 'Hilarious Felines'
+    assert album['url'] == 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID'

@@ -10,6 +10,3 @@ GPHOTO_XML_NS = {
     'gphoto': 'http://schemas.google.com/photos/2007',
     'gd': 'http://schemas.google.com/g/2005' 
 }
-def register_gphoto_namespaces(element_tree):
-    for prefix, uri in GPHOTO_XML_NS.items():
-        element_tree.register_namespace(prefix, uri)
