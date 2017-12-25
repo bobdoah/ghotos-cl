@@ -1,0 +1,6 @@
+google-auth-oauthlib
+click
+mock
+pytest-mock
+pytest
+pytest_click

@@ -3,9 +3,13 @@ import json
 import os.path
 import six
 
+import click
+
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import AuthorizedSession
 from google.oauth2.credentials import Credentials
+
+GOOGLE_AUTHORIZED_USER_FILE = 'authorized-user.json'
 
 _GOOGLE_OAUTH2_TOKEN_ENDPOINT = 'https://accounts.google.com/o/oauth2/token'
 
@@ -59,18 +63,13 @@ def load_credentials(authorized_user_file):
     if os.path.exists(authorized_user_file):
         try:
             return Credentials.from_authorized_user_file(authorized_user_file, scopes=get_scopes())
-        except ValueError, e:
+        except ValueError as e:
             print(e)
     return None
 
-def get_session_from_args(args):
-    if args.authorized_user_file:
-        credentials = load_credentials(args.authorized_user_file)
-    if credentials is None:
-        session = get_session_from_client_secrets(args.client_secrets, args.headless)
-    else:
-        session = AuthorizedSession(credentials)
-    if args.authorized_user_file:
-        save_credentials(session.credentials, args.authorized_user_file)
-    return session
-
+@click.command()
+@click.argument('client_secrets', type=click.Path(exists=True))
+@click.option('--authorized-user-file', default=GOOGLE_AUTHORIZED_USER_FILE, help="The name of a file to dump the authorized user's token in.", type=click.Path())
+def auth(client_secrets, authorized_user_file):
+    session = get_session_from_client_secrets(client_secrets)
+    save_credentials(session, authorized_user_file)
