@@ -1,5 +1,9 @@
 from xml.etree import ElementTree
 
+import click
+import tabulate
+
+from .authorized_session import get_session_from_authorized_user_file, GOOGLE_AUTHORIZED_USER_FILE
 from .namespace import GPHOTO_XML_NS
 
 GOOGLE_PICASAWEB_ALBUMS_URL = 'https://picasaweb.google.com/data/feed/api/user/default'
@@ -28,3 +32,14 @@ def get_albums(session):
     return parse_albums(response.content)
 
 
+@click.command()
+@click.option('--authorized-user-file', default=GOOGLE_AUTHORIZED_USER_FILE, help="The name of a file to dump the authorized user's token in.", type=click.Path())
+def albums(authorized_user_file):
+    session = get_session_from_authorized_user_file(authorized_user_file)
+    data = {'title':[], 'url':[], 'summary':[]}
+    for album_id, album_details in get_albums(session).items():
+        data['title'].append(album_details['title'])
+        data['url'].append(album_details['url'])
+        album_summary = album_details['summary']
+        data['summary'].append(album_summary if album_summary is not None else '')
+    click.echo(tabulate.tabulate(data, headers='keys'))

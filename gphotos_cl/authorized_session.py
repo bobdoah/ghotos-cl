@@ -49,6 +49,10 @@ def get_session_from_client_secrets(client_secrets, headless=False):
         flow.run_console()
     return flow.authorized_session()
 
+def get_session_from_authorized_user_file(authorized_user_file):
+    credentials = Credentials.from_authorized_user_file(authorized_user_file, scopes=get_scopes())   
+    return AuthorizedSession(credentials)
+
 def save_credentials(creds, authorized_user_file):
     with open(authorized_user_file, 'w') as filehandle:
         json.dump({
@@ -58,14 +62,6 @@ def save_credentials(creds, authorized_user_file):
             'client_secret': creds.client_secret,
             'scopes': creds.scopes
         }, filehandle)
-
-def load_credentials(authorized_user_file):
-    if os.path.exists(authorized_user_file):
-        try:
-            return Credentials.from_authorized_user_file(authorized_user_file, scopes=get_scopes())
-        except ValueError as e:
-            print(e)
-    return None
 
 @click.command()
 @click.argument('client_secrets', type=click.Path(exists=True))
