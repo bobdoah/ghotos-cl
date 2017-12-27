@@ -71,6 +71,6 @@ def load_credentials(authorized_user_file):
 @click.argument('client_secrets', type=click.Path(exists=True))
 @click.option('--authorized-user-file', default=GOOGLE_AUTHORIZED_USER_FILE, help="The name of a file to dump the authorized user's token in.", type=click.Path())
 @click.option('--headless/--no-headless', default=False, help="Run in headless mode and present a URL on the console, rather than running a webserver")
-def auth(client_secrets, authorized_user_file, headless):
+def authorize(client_secrets, authorized_user_file, headless):
     session = get_session_from_client_secrets(client_secrets, headless)
     save_credentials(session, authorized_user_file)

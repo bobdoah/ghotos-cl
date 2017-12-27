@@ -6,7 +6,7 @@ import pytest
 import gphotos_cl.authorized_session
 
 @pytest.mark.parametrize('headless', [True, False], ids=['console', 'local_server'])
-def test_auth(mocker, isolated_cli_runner, headless):
+def test_authorize(mocker, isolated_cli_runner, headless):
     with open('client_secrets.json', 'w') as f:
        json.dump( 
         {"installed":{
@@ -41,7 +41,7 @@ def test_auth(mocker, isolated_cli_runner, headless):
     args = ['client_secrets.json']
     if headless:
         args.append('--headless')
-    result = isolated_cli_runner.invoke(gphotos_cl.authorized_session.auth, args)
+    result = isolated_cli_runner.invoke(gphotos_cl.authorized_session.authorize, args)
     assert result.exit_code == 0 
     assert result.output == ''
     assert os.path.exists(gphotos_cl.authorized_session.GOOGLE_AUTHORIZED_USER_FILE)

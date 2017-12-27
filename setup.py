@@ -10,7 +10,7 @@ setup(
     packages=['gphotos_cl'],
     entry_points = {
         'console_scripts': [
-            'gphotos-cl=gphotos_cl.tool:main',
+            'gphotos-cl=gphotos_cl.tool:entrypoint',
         ]
     },
     install_requires=[
