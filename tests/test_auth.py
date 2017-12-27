@@ -5,7 +5,8 @@ import pytest
 
 import gphotos_cl.authorized_session
 
-def test_auth(mocker, isolated_cli_runner):
+@pytest.mark.parametrize('headless', [True, False], ids=['console', 'local_server'])
+def test_auth(mocker, isolated_cli_runner, headless):
     with open('client_secrets.json', 'w') as f:
        json.dump( 
         {"installed":{
@@ -35,8 +36,20 @@ def test_auth(mocker, isolated_cli_runner):
 
     gphotos_cl.authorized_session.InstalledAppFlow.from_client_secrets_file.return_value = (gphotos_cl.authorized_session.InstalledAppFlow())
     gphotos_cl.authorized_session.InstalledAppFlow().run_local_server.return_value = credentials_mock
+    gphotos_cl.authorized_session.InstalledAppFlow().run_console = credentials_mock
     gphotos_cl.authorized_session.InstalledAppFlow().authorized_session.return_value = credentials_mock
-    result = isolated_cli_runner.invoke(gphotos_cl.authorized_session.auth, ['client_secrets.json'])
+    args = ['client_secrets.json']
+    if headless:
+        args.append('--headless')
+    result = isolated_cli_runner.invoke(gphotos_cl.authorized_session.auth, args)
     assert result.exit_code == 0 
     assert result.output == ''
     assert os.path.exists(gphotos_cl.authorized_session.GOOGLE_AUTHORIZED_USER_FILE)
+    gphotos_cl.authorized_session.InstalledAppFlow.from_client_secrets_file.assert_called_once_with(
+            'client_secrets.json', scopes=gphotos_cl.authorized_session.get_scopes()
+    )
+    if headless:
+        assert gphotos_cl.authorized_session.InstalledAppFlow().run_console.call_count == 1
+    else:
+        assert gphotos_cl.authorized_session.InstalledAppFlow().run_local_server.call_count == 1
+    assert gphotos_cl.authorized_session.InstalledAppFlow().authorized_session.call_count == 1
