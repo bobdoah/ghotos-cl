@@ -1,6 +1,6 @@
 import pytest
 
-from gphotos_cl.albums import parse_albums
+from gphotos_cl.albums import parse_albums, get_albums, GOOGLE_PICASAWEB_ALBUMS_URL
 
 @pytest.fixture
 def album_data():
@@ -102,6 +102,16 @@ def album_data():
 
 def test_parser(album_data):
     albums = parse_albums(album_data)
+    assert ['albumID' in albums]
+    album = albums['albumID'] 
+    assert album['title'] == 'lolcats'
+    assert album['summary'] == 'Hilarious Felines'
+    assert album['url'] == 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID'
+
+def test_get(requests_mocker, album_data, session):
+    requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=album_data)
+    albums = get_albums(session)
+    assert albums is not None
     assert ['albumID' in albums]
     album = albums['albumID'] 
     assert album['title'] == 'lolcats'

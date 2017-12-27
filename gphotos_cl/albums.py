@@ -2,6 +2,8 @@ from xml.etree import ElementTree
 
 from .namespace import GPHOTO_XML_NS
 
+GOOGLE_PICASAWEB_ALBUMS_URL = 'https://picasaweb.google.com/data/feed/api/user/default'
+
 def parse_albums(xml_content):
     albums = {}
     feed = ElementTree.fromstring(xml_content)
@@ -20,5 +22,9 @@ def parse_albums(xml_content):
                 'url': album_url.text
         }
     return albums
+
+def get_albums(session):
+    response = session.get(GOOGLE_PICASAWEB_ALBUMS_URL)
+    return parse_albums(response.content)
 
 
