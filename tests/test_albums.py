@@ -107,6 +107,7 @@ def test_parser(album_data):
     assert album['title'] == 'lolcats'
     assert album['summary'] == 'Hilarious Felines'
     assert album['url'] == 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID'
+    assert album['album_type'] is None
 
 def test_get(requests_mocker, album_data, session):
     requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=album_data)
@@ -117,3 +118,4 @@ def test_get(requests_mocker, album_data, session):
     assert album['title'] == 'lolcats'
     assert album['summary'] == 'Hilarious Felines'
     assert album['url'] == 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID'
+    assert album['album_type'] is None

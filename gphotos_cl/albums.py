@@ -1,3 +1,5 @@
+import datetime
+
 from xml.etree import ElementTree
 
 import click
@@ -16,6 +18,9 @@ def parse_albums(xml_content):
         album_title = entry.find('atom:title', namespaces=GPHOTO_XML_NS)
         album_url = entry.find('atom:id', namespaces=GPHOTO_XML_NS)
         album_summary = entry.find('atom:summary', namespaces=GPHOTO_XML_NS)
+        album_type = entry.find('gphoto:albumType', namespaces=GPHOTO_XML_NS)
+        if album_type is not None:
+            album_type = album_type.text
         assert album_title is not None
         assert album_id is not None
         assert album_summary is not None
@@ -23,7 +28,8 @@ def parse_albums(xml_content):
         albums[album_id.text] = {
                 'title': album_title.text,
                 'summary': album_summary.text,
-                'url': album_url.text
+                'url': album_url.text,
+                'album_type':album_type
         }
     return albums
 
@@ -32,14 +38,32 @@ def get_albums(session):
     return parse_albums(response.content)
 
 
+def is_date(album_title):
+    try:
+        datetime.datetime.strptime(album_title, '%Y-%m-%d')
+        return True
+    except ValueError:
+        return False
+
 @click.command()
 @click.option('--authorized-user-file', default=GOOGLE_AUTHORIZED_USER_FILE, help="The name of a file to dump the authorized user's token in.", type=click.Path())
-def albums(authorized_user_file):
+@click.option('--filter-buzz/--no-filter-buzz', default=True, help="Don't show albums from Buzz and Google+")
+@click.option('--filter-hangout/--no-filter-hangout', default=True, help="Don't show albums from Hangouts")
+@click.option('--filter-archive/--no-filter-archive', default=True, help="Don't show archived albums (date only title)")
+def albums(authorized_user_file, filter_buzz, filter_hangout, filter_archive):
     session = get_session_from_authorized_user_file(authorized_user_file)
-    data = {'title':[], 'url':[], 'summary':[]}
-    for album_id, album_details in get_albums(session).items():
-        data['title'].append(album_details['title'])
-        data['url'].append(album_details['url'])
-        album_summary = album_details['summary']
-        data['summary'].append(album_summary if album_summary is not None else '')
-    click.echo(tabulate.tabulate(data, headers='keys'))
+    data = [['title', 'summary', 'album_type', 'url']]
+    albums = get_albums(session)
+    for album_details in sorted(albums.values(), key=lambda k: k['title'].lower()):
+        if album_details['album_type'] == 'Buzz' and filter_buzz:
+            continue
+        if 'Hangout: ' in album_details['title'] and filter_hangout:
+            continue 
+        if is_date(album_details['title']) and filter_archive:
+            continue
+        #album_summary = album_details['summary'] if summary is not None else ""
+        data.append([album_details['title'],
+            album_details['summary'],
+            album_details['album_type'],
+            album_details['url']])
+    click.echo(tabulate.tabulate(data, headers='firstrow'))
