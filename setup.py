@@ -15,6 +15,7 @@ setup(
     },
     install_requires=[
           'google-auth-oauthlib',
-          'click'
+          'click',
+          'tabulate'
     ],
 )
