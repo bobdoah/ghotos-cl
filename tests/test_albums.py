@@ -8,7 +8,7 @@ from gphotos_cl.albums import parse_albums, get_albums, GOOGLE_PICASAWEB_ALBUMS_
 from gphotos_cl.authorized_session import GOOGLE_AUTHORIZED_USER_FILE
 
 @pytest.fixture
-def album_data():
+def albums_data():
     return """<?xml version='1.0' encoding='utf-8'?>
 <feed xmlns='http://www.w3.org/2005/Atom'
     xmlns:openSearch='http://a9.com/-/spec/opensearch/1.1/'
@@ -217,8 +217,8 @@ def album_data():
 </feed>
 """
 
-def test_parser(album_data):
-    albums = parse_albums(album_data)
+def test_parser(albums_data):
+    albums = parse_albums(albums_data)
     assert ['albumID' in albums]
     album = albums['albumID'] 
     assert album['title'] == 'lolcats'
@@ -226,8 +226,8 @@ def test_parser(album_data):
     assert album['url'] == 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID'
     assert album['album_type'] is None
 
-def test_get(requests_mocker, album_data, session):
-    requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=album_data)
+def test_get(requests_mocker, albums_data, session):
+    requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=albums_data)
     albums = get_albums(session)
     assert albums is not None
     assert ['albumID' in albums]
@@ -247,9 +247,9 @@ def refresh_token():
     [['--no-filter-hangout'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/hangout', '', '', 'Hangout: blah'],
     [['--no-filter-archive'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/archive', '', '', '2017-01-20']
     ])
-def test_albums(mocker, requests_mocker, album_data, refresh_token, session, isolated_cli_runner,
+def test_albums(mocker, requests_mocker, albums_data, refresh_token, session, isolated_cli_runner,
         args, url, summary, album_type, title):
-    requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=album_data)
+    requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=albums_data)
     requests_mocker.post('https://accounts.google.com/o/oauth2/token', text=refresh_token)
     mocker.patch('gphotos_cl.authorized_session.get_session_from_authorized_user_file')
     gphotos_cl.authorized_session.get_session_from_authorized_user_file.return_value = session
