@@ -1,4 +1,6 @@
 import json
+
+import asciitable
 import pytest
 
 import gphotos_cl.albums
@@ -239,7 +241,14 @@ def test_get(requests_mocker, album_data, session):
 def refresh_token():
     return '{ "access_token":"1/fFAGRNJru1FTz70BzhT3Zg", "expires_in":3920, "token_type":"Bearer" }'
 
-def test_albums(mocker, requests_mocker, album_data, refresh_token, session, isolated_cli_runner):
+@pytest.mark.parametrize('args,url,summary,album_type,title', [
+    [[], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID', 'Hilarious Felines', '', 'lolcats'],
+    [['--no-filter-buzz'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/buzz', '', 'Buzz', '27/03/2015'],
+    [['--no-filter-hangout'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/hangout', '', '', 'Hangout: blah'],
+    [['--no-filter-archive'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/archive', '', '', '2017-01-20']
+    ])
+def test_albums(mocker, requests_mocker, album_data, refresh_token, session, isolated_cli_runner,
+        args, url, summary, album_type, title):
     requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=album_data)
     requests_mocker.post('https://accounts.google.com/o/oauth2/token', text=refresh_token)
     mocker.patch('gphotos_cl.authorized_session.get_session_from_authorized_user_file')
@@ -270,6 +279,11 @@ def test_albums(mocker, requests_mocker, album_data, refresh_token, session, iso
 			"token_uri": "https://accounts.google.com/o/oauth2/token",
 			"user_agent": None
 		}, f)
-    args = []
     result = isolated_cli_runner.invoke(gphotos_cl.albums.albums, args)
     assert result.exit_code == 0
+    table = asciitable.read(result.output, Reader=asciitable.FixedWidthTwoLine)
+    assert url in table['url']
+    assert summary in table['summary']
+    assert album_type in table['album_type']
+    assert title in table['title']
+    
