@@ -1,6 +1,9 @@
+import json
 import pytest
 
+import gphotos_cl.albums
 from gphotos_cl.albums import parse_albums, get_albums, GOOGLE_PICASAWEB_ALBUMS_URL
+from gphotos_cl.authorized_session import GOOGLE_AUTHORIZED_USER_FILE
 
 @pytest.fixture
 def album_data():
@@ -97,6 +100,118 @@ def album_data():
       <media:credit>Liz</media:credit>
     </media:group>
   </entry>
+  <entry gd:etag='hangout01'>
+    <id>https://picasaweb.google.com/data/entry/api/user/liz/albumid/hangout</id>
+    <published>2005-06-17T07:09:42.000Z</published>
+    <updated>2009-03-12T01:19:14.000Z</updated>
+    <app:edited xmlns:app='http://www.w3.org/2007/app'>
+      2009-03-12T01:19:14.000Z</app:edited>
+    <category scheme='http://schemas.google.com/g/2005#kind'
+      term='http://schemas.google.com/photos/2007#album' />
+    <title>Hangout: blah</title>
+    <summary></summary>
+    <rights>public</rights>
+    <link rel='http://schemas.google.com/g/2005#feed'
+      type='application/atom+xml'
+      href='https://picasaweb.google.com/data/feed/api/user/liz/albumid/hangout?authkey=authKey&amp;v=2' />
+    <link rel='alternate' type='text/html'
+      href='http://picasaweb.google.com/lh/album/hangout?authkey=authKey' />
+    <link rel='self' type='application/atom+xml'
+      href='https://picasaweb.google.com/data/entry/api/user/liz/albumid/hangout?authkey=authKey&amp;v=2' />
+    <link rel='edit' type='application/atom+xml'
+      href='https://picasaweb.google.com/data/entry/api/user/liz/albumid/hangout/1236820754876000?authkey=authKey&amp;v=2' />
+    <link rel='http://schemas.google.com/acl/2007#accessControlList'
+      type='application/atom+xml'
+      href='https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID/acl?authkey=authKey&amp;v=2' />
+    <author>
+      <name>Liz</name>
+      <uri>http://picasaweb.google.com/liz</uri>
+    </author>
+    <gphoto:id>hangout</gphoto:id>
+    <gphoto:location>Mountain View, CA</gphoto:location>
+    <gphoto:access>public</gphoto:access>
+    <gphoto:timestamp>1118992182000</gphoto:timestamp>
+    <gphoto:numphotos>1</gphoto:numphotos>
+    <gphoto:numphotosremaining>499</gphoto:numphotosremaining>
+    <gphoto:bytesUsed>23044</gphoto:bytesUsed>
+    <gphoto:user>liz</gphoto:user>
+    <gphoto:nickname>Liz</gphoto:nickname>
+  </entry>
+  <entry gd:etag='buzz01'>
+    <id>https://picasaweb.google.com/data/entry/api/user/liz/albumid/buzz</id>
+    <published>2005-06-17T07:09:42.000Z</published>
+    <updated>2009-03-12T01:19:14.000Z</updated>
+    <app:edited xmlns:app='http://www.w3.org/2007/app'>
+      2009-03-12T01:19:14.000Z</app:edited>
+    <category scheme='http://schemas.google.com/g/2005#kind'
+      term='http://schemas.google.com/photos/2007#album' />
+    <title>27/03/2015</title>
+    <summary></summary>
+    <rights>public</rights>
+    <link rel='http://schemas.google.com/g/2005#feed'
+      type='application/atom+xml'
+      href='https://picasaweb.google.com/data/feed/api/user/liz/albumid/buzz?authkey=authKey&amp;v=2' />
+    <link rel='alternate' type='text/html'
+      href='http://picasaweb.google.com/lh/album/buzz?authkey=authKey' />
+    <link rel='self' type='application/atom+xml'
+      href='https://picasaweb.google.com/data/entry/api/user/liz/albumid/buzz?authkey=authKey&amp;v=2' />
+    <link rel='edit' type='application/atom+xml'
+      href='https://picasaweb.google.com/data/entry/api/user/liz/albumid/buzz/1236820754876000?authkey=authKey&amp;v=2' />
+    <link rel='http://schemas.google.com/acl/2007#accessControlList'
+      type='application/atom+xml'
+      href='https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID/acl?authkey=authKey&amp;v=2' />
+    <author>
+      <name>Liz</name>
+      <uri>http://picasaweb.google.com/liz</uri>
+    </author>
+    <gphoto:id>buzz</gphoto:id>
+    <gphoto:location>Mountain View, CA</gphoto:location>
+    <gphoto:access>public</gphoto:access>
+    <gphoto:timestamp>1118992182000</gphoto:timestamp>
+    <gphoto:numphotos>1</gphoto:numphotos>
+    <gphoto:numphotosremaining>499</gphoto:numphotosremaining>
+    <gphoto:bytesUsed>23044</gphoto:bytesUsed>
+    <gphoto:user>liz</gphoto:user>
+    <gphoto:nickname>Liz</gphoto:nickname>
+    <gphoto:albumType>Buzz</gphoto:albumType>
+ </entry>
+   <entry gd:etag='archive01'>
+    <id>https://picasaweb.google.com/data/entry/api/user/liz/albumid/archive</id>
+    <published>2005-06-17T07:09:42.000Z</published>
+    <updated>2009-03-12T01:19:14.000Z</updated>
+    <app:edited xmlns:app='http://www.w3.org/2007/app'>
+      2009-03-12T01:19:14.000Z</app:edited>
+    <category scheme='http://schemas.google.com/g/2005#kind'
+      term='http://schemas.google.com/photos/2007#album' />
+    <title>2017-01-20</title>
+    <summary></summary>
+    <rights>public</rights>
+    <link rel='http://schemas.google.com/g/2005#feed'
+      type='application/atom+xml'
+      href='https://picasaweb.google.com/data/feed/api/user/liz/albumid/archive?authkey=authKey&amp;v=2' />
+    <link rel='alternate' type='text/html'
+      href='http://picasaweb.google.com/lh/album/archive?authkey=authKey' />
+    <link rel='self' type='application/atom+xml'
+      href='https://picasaweb.google.com/data/entry/api/user/liz/albumid/archive?authkey=authKey&amp;v=2' />
+    <link rel='edit' type='application/atom+xml'
+      href='https://picasaweb.google.com/data/entry/api/user/liz/albumid/archive/1236820754876000?authkey=authKey&amp;v=2' />
+    <link rel='http://schemas.google.com/acl/2007#accessControlList'
+      type='application/atom+xml'
+      href='https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID/acl?authkey=authKey&amp;v=2' />
+    <author>
+      <name>Liz</name>
+      <uri>http://picasaweb.google.com/liz</uri>
+    </author>
+    <gphoto:id>archive</gphoto:id>
+    <gphoto:location>Mountain View, CA</gphoto:location>
+    <gphoto:access>public</gphoto:access>
+    <gphoto:timestamp>1118992182000</gphoto:timestamp>
+    <gphoto:numphotos>1</gphoto:numphotos>
+    <gphoto:numphotosremaining>499</gphoto:numphotosremaining>
+    <gphoto:bytesUsed>23044</gphoto:bytesUsed>
+    <gphoto:user>liz</gphoto:user>
+    <gphoto:nickname>Liz</gphoto:nickname>
+  </entry>
 </feed>
 """
 
@@ -119,3 +234,42 @@ def test_get(requests_mocker, album_data, session):
     assert album['summary'] == 'Hilarious Felines'
     assert album['url'] == 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID'
     assert album['album_type'] is None
+
+@pytest.fixture
+def refresh_token():
+    return '{ "access_token":"1/fFAGRNJru1FTz70BzhT3Zg", "expires_in":3920, "token_type":"Bearer" }'
+
+def test_albums(mocker, requests_mocker, album_data, refresh_token, session, isolated_cli_runner):
+    requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=album_data)
+    requests_mocker.post('https://accounts.google.com/o/oauth2/token', text=refresh_token)
+    mocker.patch('gphotos_cl.authorized_session.get_session_from_authorized_user_file')
+    gphotos_cl.authorized_session.get_session_from_authorized_user_file.return_value = session
+    with open(GOOGLE_AUTHORIZED_USER_FILE, 'w') as f:
+        json.dump({
+			"_class": "OAuth2Credentials",
+			"_module": "oauth2client.client",
+			"access_token": "credentials.access_token",
+			"client_id": "credentials.client_id",
+			"client_secret": "credentials.client_secret",
+			"id_token": None,
+			"id_token_jwt": None,
+			"invalid": False,
+			"refresh_token": "credentials.refresh_token",
+			"revoke_uri": "https://accounts.google.com/o/oauth2/revoke",
+			"scopes": [
+				"https://picasaweb.google.com/data/"
+			],
+			"token_expiry": "2017-12-09T12:34:24Z",
+			"token_info_uri": "https://www.googleapis.com/oauth2/v3/tokeninfo",
+			"token_response": {
+				"access_token": "credentials.access_token",
+				"expires_in": 3600,
+				"refresh_token": "credentials.refresh_token",
+				"token_type": "Bearer"
+			},
+			"token_uri": "https://accounts.google.com/o/oauth2/token",
+			"user_agent": None
+		}, f)
+    args = []
+    result = isolated_cli_runner.invoke(gphotos_cl.albums.albums, args)
+    assert result.exit_code == 0
