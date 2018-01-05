@@ -8,7 +8,7 @@ import tabulate
 from .authorized_session import get_session_from_authorized_user_file, GOOGLE_AUTHORIZED_USER_FILE
 from .namespace import GPHOTO_XML_NS
 
-GOOGLE_PICASAWEB_ALBUMS_URL = 'https://picasaweb.google.com/data/feed/api/user/default'
+GOOGLE_PICASAWEB_ALBUMS_URL = 'https://picasaweb.google.com/data/feed/api/user/default?fields=entry(id,gphoto:id,title,summary,gphoto:albumType)'
 
 def parse_albums(xml_content):
     albums = {}

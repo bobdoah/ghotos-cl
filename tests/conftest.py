@@ -12,3 +12,8 @@ def requests_mocker():
 def session():
     s = requests.Session()
     yield s
+
+@pytest.fixture
+def refresh_token():
+    return '{ "access_token":"1/fFAGRNJru1FTz70BzhT3Zg", "expires_in":3920, "token_type":"Bearer" }'
+
