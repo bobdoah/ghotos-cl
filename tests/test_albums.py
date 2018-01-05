@@ -41,18 +41,7 @@ def albums_data():
 </feed>
 """
 
-def test_parser(albums_data):
-    albums = parse_albums(albums_data)
-    assert ['albumID' in albums]
-    album = albums['albumID'] 
-    assert album['title'] == 'lolcats'
-    assert album['summary'] == 'Hilarious Felines'
-    assert album['url'] == 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID'
-    assert album['album_type'] is None
-
-def test_get(requests_mocker, albums_data, session):
-    requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=albums_data)
-    albums = get_albums(session)
+def check_albums(albums):
     assert albums is not None
     assert ['albumID' in albums]
     album = albums['albumID'] 
@@ -60,6 +49,16 @@ def test_get(requests_mocker, albums_data, session):
     assert album['summary'] == 'Hilarious Felines'
     assert album['url'] == 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID'
     assert album['album_type'] is None
+    assert album['id'] == 'albumID'
+
+def test_parser(albums_data):
+    albums = parse_albums(albums_data)
+    check_albums(albums)
+
+def test_get(requests_mocker, albums_data, session):
+    requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=albums_data)
+    albums = get_albums(session)
+    check_albums(albums)
 
 @pytest.mark.parametrize('args,url,summary,album_type,title,album_id', [
     [[], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID', 'Hilarious Felines', '', 'lolcats', 'albumID'],
