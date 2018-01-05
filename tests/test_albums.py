@@ -26,10 +26,10 @@ def albums_data():
     <gphoto:id>hangout</gphoto:id>
   </entry>
   <entry>
-    <id>https://picasaweb.google.com/data/entry/api/user/liz/albumid/buzz</id>
+    <id>https://picasaweb.google.com/data/entry/api/user/liz/albumid/Buzz</id>
     <title>27/03/2015</title>
     <summary></summary>
-    <gphoto:id>buzz</gphoto:id>
+    <gphoto:id>Buzz</gphoto:id>
     <gphoto:albumType>Buzz</gphoto:albumType>
  </entry>
    <entry>
@@ -61,14 +61,14 @@ def test_get(requests_mocker, albums_data, session):
     assert album['url'] == 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID'
     assert album['album_type'] is None
 
-@pytest.mark.parametrize('args,url,summary,album_type,title', [
-    [[], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID', 'Hilarious Felines', '', 'lolcats'],
-    [['--no-filter-buzz'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/buzz', '', 'Buzz', '27/03/2015'],
-    [['--no-filter-hangout'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/hangout', '', '', 'Hangout: blah'],
-    [['--no-filter-archive'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/archive', '', '', '2017-01-20']
+@pytest.mark.parametrize('args,url,summary,album_type,title,album_id', [
+    [[], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID', 'Hilarious Felines', '', 'lolcats', 'albumID'],
+    [['--no-filter-buzz'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/Buzz', '', 'Buzz', '27/03/2015', 'Buzz'],
+    [['--no-filter-hangout'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/hangout', '', '', 'Hangout: blah', 'hangout'],
+    [['--no-filter-archive'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/archive', '', '', '2017-01-20', 'archive']
     ])
 def test_albums(mocker, requests_mocker, albums_data, refresh_token, session, isolated_cli_runner,
-        args, url, summary, album_type, title):
+        args, url, summary, album_type, title, album_id):
     requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=albums_data)
     requests_mocker.post('https://accounts.google.com/o/oauth2/token', text=refresh_token)
     mocker.patch('gphotos_cl.authorized_session.get_session_from_authorized_user_file')
@@ -106,4 +106,5 @@ def test_albums(mocker, requests_mocker, albums_data, refresh_token, session, is
     assert summary in table['summary']
     assert album_type in table['album_type']
     assert title in table['title']
+    assert album_id in table['id']
     

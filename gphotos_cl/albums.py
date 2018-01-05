@@ -25,11 +25,13 @@ def parse_albums(xml_content):
         assert album_id is not None
         assert album_summary is not None
         assert album_url is not None
-        albums[album_id.text] = {
+        album_id = album_id.text
+        albums[album_id] = {
                 'title': album_title.text,
                 'summary': album_summary.text,
                 'url': album_url.text,
-                'album_type':album_type
+                'album_type':album_type,
+                'id':album_id
         }
     return albums
 
@@ -52,7 +54,7 @@ def is_date(album_title):
 @click.option('--filter-archive/--no-filter-archive', default=True, help="Don't show archived albums (date only title)")
 def albums(authorized_user_file, filter_buzz, filter_hangout, filter_archive):
     session = get_session_from_authorized_user_file(authorized_user_file)
-    data = [['title', 'summary', 'album_type', 'url']]
+    data = [['title', 'summary', 'album_type', 'url', 'id']]
     albums = get_albums(session)
     for album_details in sorted(albums.values(), key=lambda k: k['title'].lower()):
         if album_details['album_type'] == 'Buzz' and filter_buzz:
@@ -61,9 +63,9 @@ def albums(authorized_user_file, filter_buzz, filter_hangout, filter_archive):
             continue 
         if is_date(album_details['title']) and filter_archive:
             continue
-        #album_summary = album_details['summary'] if summary is not None else ""
         data.append([album_details['title'],
             album_details['summary'],
             album_details['album_type'],
-            album_details['url']])
+            album_details['url'],
+            album_details['id']])
     click.echo(tabulate.tabulate(data, headers='firstrow'))
