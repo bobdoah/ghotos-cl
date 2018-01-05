@@ -84,8 +84,8 @@ def test_parser(album_data, photo_id):
 def test_get(requests_mocker, album_data, album_id, photo_id, session):
     url = GOOGLE_PICASAWEB_ALBUM_URL.format(album_id=album_id)
     requests_mocker.get(url, text=album_data)
-    title, photos = get_album(session)
-    check_album(title, photos)
+    title, photos = get_album(session, album_id)
+    check_album(title, photos, photo_id)
 
 def test_album(mocker, requests_mocker, album_data, refresh_token, session, isolated_cli_runner):
     pass

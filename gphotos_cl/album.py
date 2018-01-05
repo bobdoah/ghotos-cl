@@ -30,5 +30,6 @@ def parse_album(xml_content):
 
     
 
-def get_album(session):
-    pass
+def get_album(session, album_id):
+    response = session.get(GOOGLE_PICASAWEB_ALBUM_URL.format(album_id=album_id))
+    return parse_album(response.content)
