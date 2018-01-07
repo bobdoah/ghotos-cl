@@ -43,8 +43,8 @@ def albums_data():
 
 def check_albums(albums):
     assert albums is not None
-    assert ['albumID' in albums]
-    album = albums['albumID'] 
+    assert len(albums) == 4 
+    album = albums[0]
     assert album['title'] == 'lolcats'
     assert album['summary'] == 'Hilarious Felines'
     assert album['url'] == 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID'

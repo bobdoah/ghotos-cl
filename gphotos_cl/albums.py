@@ -14,7 +14,7 @@ class AlbumNotFound(Exception):
     pass
 
 def parse_albums(xml_content):
-    albums = {}
+    albums = []
     feed = ElementTree.fromstring(xml_content)
     for entry in feed.iterfind('atom:entry', namespaces=GPHOTO_XML_NS):
         album_id = entry.find('gphoto:id', namespaces=GPHOTO_XML_NS)
@@ -29,13 +29,13 @@ def parse_albums(xml_content):
         assert album_summary is not None
         assert album_url is not None
         album_id = album_id.text
-        albums[album_id] = {
+        albums.append({
                 'title': album_title.text,
                 'summary': album_summary.text,
                 'url': album_url.text,
                 'album_type':album_type,
                 'id':album_id
-        }
+        })
     return albums
 
 def get_albums(session):
@@ -43,7 +43,7 @@ def get_albums(session):
     return parse_albums(response.content)
 
 def get_album_id_by_title(session, album_title):
-    for album in get_albums(session).values():
+    for album in get_albums(session):
         if album['title'] == album_title:
             return album['id']
     raise AlbumNotFound('album with title {} not found'.format(album_title))
@@ -64,7 +64,7 @@ def albums(authorized_user_file, filter_buzz, filter_hangout, filter_archive):
     session = get_session_from_authorized_user_file(authorized_user_file)
     data = [['title', 'summary', 'album_type', 'url', 'id']]
     albums = get_albums(session)
-    for album_details in sorted(albums.values(), key=lambda k: k['title'].lower()):
+    for album_details in sorted(albums, key=lambda k: k['title'].lower()):
         if album_details['album_type'] == 'Buzz' and filter_buzz:
             continue
         if 'Hangout: ' in album_details['title'] and filter_hangout:
