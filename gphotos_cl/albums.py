@@ -43,8 +43,7 @@ def get_albums(session):
     return parse_albums(response.content)
 
 def get_album_id_by_title(session, album_title):
-    albums = get_albums(session)
-    for album in albums:
+    for album in get_albums(session).values():
         if album['title'] == album_title:
             return album['id']
     raise AlbumNotFound('album with title {} not found'.format(album_title))

@@ -4,7 +4,7 @@ import asciitable
 import pytest
 
 import gphotos_cl.albums
-from gphotos_cl.albums import parse_albums, get_albums, GOOGLE_PICASAWEB_ALBUMS_URL
+from gphotos_cl.albums import parse_albums, get_albums, get_album_id_by_title, GOOGLE_PICASAWEB_ALBUMS_URL
 from gphotos_cl.authorized_session import GOOGLE_AUTHORIZED_USER_FILE
 
 @pytest.fixture
@@ -59,6 +59,10 @@ def test_get(requests_mocker, albums_data, session):
     requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=albums_data)
     albums = get_albums(session)
     check_albums(albums)
+
+def test_get_albumd_id_by_title(requests_mocker, albums_data, session):
+    requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=albums_data)
+    assert get_album_id_by_title(session, "lolcats") == "albumID"
 
 @pytest.mark.parametrize('args,url,summary,album_type,title,album_id', [
     [[], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID', 'Hilarious Felines', '', 'lolcats', 'albumID'],
