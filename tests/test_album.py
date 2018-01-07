@@ -117,3 +117,17 @@ def test_album(mocker, requests_mocker, album_data, albums_data, album_id, refre
     result = isolated_cli_runner.invoke(gphotos_cl.album.album, args)
     assert result.exit_code == 0
     table = asciitable.read(result.output, Reader=asciitable.FixedWidthTwoLine)
+
+def test_album_only_titles(mocker, requests_mocker, album_data, albums_data, album_id, refresh_token, session, isolated_cli_runner):
+    args = ['Shutup 2017', '--only-titles']
+    url = GOOGLE_PICASAWEB_ALBUM_URL.format(album_id=album_id)
+    requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=albums_data)
+    requests_mocker.get(url, text=album_data)
+    requests_mocker.post('https://accounts.google.com/o/oauth2/token', text=refresh_token)
+    mocker.patch('gphotos_cl.authorized_session.get_session_from_authorized_user_file')
+    gphotos_cl.authorized_session.get_session_from_authorized_user_file.return_value = session
+    populate_authorized_user_file()
+    result = isolated_cli_runner.invoke(gphotos_cl.album.album, args)
+    assert result.exit_code == 0
+    titles = result.output.split('\n')
+    assert 'DSC04250.JPG' in titles

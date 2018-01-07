@@ -36,16 +36,20 @@ def get_album(session, album_id):
 
 @click.command()
 @click.option('--authorized-user-file', default=GOOGLE_AUTHORIZED_USER_FILE, help="The name of a file to dump the authorized user's token in.", type=click.Path())
+@click.option('--table/--only-titles', default=True, help="Dump the full table or just the photo titles")
 @click.argument('album_name')
-def album(album_name, authorized_user_file):
+def album(album_name, authorized_user_file, table):
     session = get_session_from_authorized_user_file(authorized_user_file)
     data = [['title', 'url', 'id']]
     album_id = get_album_id_by_title(session, album_name) 
     title, photos = get_album(session, album_id)
-    for photo in sorted(photos, key=lambda k: k['title'].lower()):
-        data.append([photo['title'], photo['url'], photo['id']])
-    click.echo("{}\n{}\n{}".format(
-        title,
-        '-' * len(title),
-        tabulate.tabulate(data, headers="firstrow")
-    ))
+    if table:
+        for photo in sorted(photos, key=lambda k: k['title'].lower()):
+            data.append([photo['title'], photo['url'], photo['id']])
+        click.echo("{}\n{}\n{}".format(
+            title,
+            '-' * len(title),
+            tabulate.tabulate(data, headers="firstrow")
+        ))
+    else:
+        click.echo("\n".join((photo['title'] for photo in photos)))
