@@ -66,7 +66,7 @@ def test_get(requests_mocker, albums_data, session):
     [['--no-filter-hangout'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/hangout', '', '', 'Hangout: blah', 'hangout'],
     [['--no-filter-archive'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/archive', '', '', '2017-01-20', 'archive']
     ])
-def test_albums(mocker, requests_mocker, albums_data, refresh_token, session, isolated_cli_runner,
+def test_albums(mocker, requests_mocker, albums_data, refresh_token, session, isolated_cli_runner, authorized_user_file,
         args, url, summary, album_type, title, album_id):
     requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=albums_data)
     requests_mocker.post('https://accounts.google.com/o/oauth2/token', text=refresh_token)

@@ -10,6 +10,9 @@ from .namespace import GPHOTO_XML_NS
 
 GOOGLE_PICASAWEB_ALBUMS_URL = 'https://picasaweb.google.com/data/feed/api/user/default?fields=entry(id,gphoto:id,title,summary,gphoto:albumType)'
 
+class AlbumNotFound(Exception):
+    pass
+
 def parse_albums(xml_content):
     albums = {}
     feed = ElementTree.fromstring(xml_content)
@@ -39,6 +42,12 @@ def get_albums(session):
     response = session.get(GOOGLE_PICASAWEB_ALBUMS_URL)
     return parse_albums(response.content)
 
+def get_album_id_by_title(session, album_title):
+    albums = get_albums(session)
+    for album in albums:
+        if album['title'] == album_title:
+            return album['id']
+    raise AlbumNotFound('album with title {} not found'.format(album_title))
 
 def is_date(album_title):
     try:

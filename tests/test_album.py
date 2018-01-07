@@ -1,5 +1,7 @@
+import asciitable
 import pytest
 
+import gphotos_cl.album
 from gphotos_cl.album import parse_album, get_album, GOOGLE_PICASAWEB_ALBUM_URL
 from gphotos_cl.authorized_session import GOOGLE_AUTHORIZED_USER_FILE
 
@@ -87,5 +89,13 @@ def test_get(requests_mocker, album_data, album_id, photo_id, session):
     title, photos = get_album(session, album_id)
     check_album(title, photos, photo_id)
 
-def test_album(mocker, requests_mocker, album_data, refresh_token, session, isolated_cli_runner):
-    pass
+def test_album(mocker, requests_mocker, album_data, refresh_token, session, isolated_cli_runner, authorized_user_file):
+    args = []
+    url = GOOGLE_PICASAWEB_ALBUM_URL.format(album_id=album_id)
+    requests_mocker.get(url, text=album_data)
+    requests_mocker.post('https://accounts.google.com/o/oauth2/token', text=refresh_token)
+    mocker.patch('gphotos_cl.authorized_session.get_session_from_authorized_user_file')
+    gphotos_cl.authorized_session.get_session_from_authorized_user_file.return_value = session
+    result = isolated_cli_runner.invoke(gphotos_cl.album.album, args)
+    assert result.exit_code == 0
+    table = asciitable.read(result.output, Reader=asciitable.FixedWidthTwoLine)

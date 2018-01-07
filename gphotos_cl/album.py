@@ -33,3 +33,10 @@ def parse_album(xml_content):
 def get_album(session, album_id):
     response = session.get(GOOGLE_PICASAWEB_ALBUM_URL.format(album_id=album_id))
     return parse_album(response.content)
+
+@click.command()
+@click.option('--authorized-user-file', default=GOOGLE_AUTHORIZED_USER_FILE, help="The name of a file to dump the authorized user's token in.", type=click.Path())
+@click.argument('album_name')
+def album(album_name, authorized_user_file):
+    session = get_session_from_authorized_user_file(authorized_user_file)
+    data = [['title', 'url', 'id']]
