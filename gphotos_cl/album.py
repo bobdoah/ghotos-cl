@@ -1,14 +1,16 @@
 from xml.etree import ElementTree
 
 import click
+import tabulate
 
+from .albums import get_album_id_by_title
 from .authorized_session import get_session_from_authorized_user_file, GOOGLE_AUTHORIZED_USER_FILE
 from .namespace import GPHOTO_XML_NS
 
-GOOGLE_PICASAWEB_ALBUM_URL = 'https://picasaweb.google.com/data/feed/api/user/default/albumid/{album_id}?fields=title,entry(title,id)&max-results=10'
+GOOGLE_PICASAWEB_ALBUM_URL = 'https://picasaweb.google.com/data/feed/api/user/default/albumid/{album_id}?fields=title,entry(title,id,gphoto:id)&max-results=10'
 
 def parse_album(xml_content):
-    photos = {}
+    photos = []
     feed = ElementTree.fromstring(xml_content)
     title = feed.find('atom:title', namespaces=GPHOTO_XML_NS)
     assert title is not None
@@ -21,14 +23,12 @@ def parse_album(xml_content):
         assert photo_title is not None
         assert photo_id is not None
         photo_id = photo_id.text
-        photos[photo_id] = {
+        photos.append({
             'url': photo_url.text,
             'title':photo_title.text,
             'id':photo_id
-        }
+        })
     return title, photos
-
-    
 
 def get_album(session, album_id):
     response = session.get(GOOGLE_PICASAWEB_ALBUM_URL.format(album_id=album_id))
@@ -40,3 +40,12 @@ def get_album(session, album_id):
 def album(album_name, authorized_user_file):
     session = get_session_from_authorized_user_file(authorized_user_file)
     data = [['title', 'url', 'id']]
+    album_id = get_album_id_by_title(session, album_name) 
+    title, photos = get_album(session, album_id)
+    for photo in sorted(photos, key=lambda k: k['title'].lower()):
+        data.append([photo['title'], photo['url'], photo['id']])
+    click.echo("{}\n{}\n{}".format(
+        title,
+        '-' * len(title),
+        tabulate.tabulate(data, headers="firstrow")
+    ))

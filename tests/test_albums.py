@@ -1,11 +1,17 @@
-import json
-
 import asciitable
 import pytest
 
 import gphotos_cl.albums
-from gphotos_cl.albums import parse_albums, get_albums, get_album_id_by_title, GOOGLE_PICASAWEB_ALBUMS_URL
+from gphotos_cl.albums import (
+        GOOGLE_PICASAWEB_ALBUMS_URL,
+        AlbumNotFound,
+        get_albums, 
+        get_album_id_by_title, 
+        parse_albums
+)
 from gphotos_cl.authorized_session import GOOGLE_AUTHORIZED_USER_FILE
+
+from utils import populate_authorized_user_file, raises
 
 @pytest.fixture
 def albums_data():
@@ -41,6 +47,7 @@ def albums_data():
 </feed>
 """
 
+
 def check_albums(albums):
     assert albums is not None
     assert len(albums) == 4 
@@ -60,48 +67,29 @@ def test_get(requests_mocker, albums_data, session):
     albums = get_albums(session)
     check_albums(albums)
 
-def test_get_albumd_id_by_title(requests_mocker, albums_data, session):
+@pytest.mark.parametrize('title,expected_error,album_id', [
+        ("lolcats", None, "albumID"),
+        ("nocats", AlbumNotFound, "")
+])
+def test_get_albumd_id_by_title(requests_mocker, albums_data, session, 
+    title, expected_error, album_id):
     requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=albums_data)
-    assert get_album_id_by_title(session, "lolcats") == "albumID"
+    with raises(expected_error):
+        assert get_album_id_by_title(session, title) == album_id
 
 @pytest.mark.parametrize('args,url,summary,album_type,title,album_id', [
-    [[], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID', 'Hilarious Felines', '', 'lolcats', 'albumID'],
-    [['--no-filter-buzz'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/Buzz', '', 'Buzz', '27/03/2015', 'Buzz'],
-    [['--no-filter-hangout'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/hangout', '', '', 'Hangout: blah', 'hangout'],
-    [['--no-filter-archive'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/archive', '', '', '2017-01-20', 'archive']
+    ([], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/albumID', 'Hilarious Felines', '', 'lolcats', 'albumID' ),
+    (['--no-filter-buzz'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/Buzz', '', 'Buzz', '27/03/2015', 'Buzz' ),
+    (['--no-filter-hangout'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/hangout', '', '', 'Hangout: blah', 'hangout' ),
+    (['--no-filter-archive'], 'https://picasaweb.google.com/data/entry/api/user/liz/albumid/archive', '', '', '2017-01-20', 'archive' )
     ])
-def test_albums(mocker, requests_mocker, albums_data, refresh_token, session, isolated_cli_runner, authorized_user_file,
+def test_albums(mocker, requests_mocker, albums_data, refresh_token, session, isolated_cli_runner, 
         args, url, summary, album_type, title, album_id):
     requests_mocker.get(GOOGLE_PICASAWEB_ALBUMS_URL, text=albums_data)
     requests_mocker.post('https://accounts.google.com/o/oauth2/token', text=refresh_token)
     mocker.patch('gphotos_cl.authorized_session.get_session_from_authorized_user_file')
     gphotos_cl.authorized_session.get_session_from_authorized_user_file.return_value = session
-    with open(GOOGLE_AUTHORIZED_USER_FILE, 'w') as f:
-        json.dump({
-			"_class": "OAuth2Credentials",
-			"_module": "oauth2client.client",
-			"access_token": "credentials.access_token",
-			"client_id": "credentials.client_id",
-			"client_secret": "credentials.client_secret",
-			"id_token": None,
-			"id_token_jwt": None,
-			"invalid": False,
-			"refresh_token": "credentials.refresh_token",
-			"revoke_uri": "https://accounts.google.com/o/oauth2/revoke",
-			"scopes": [
-				"https://picasaweb.google.com/data/"
-			],
-			"token_expiry": "2017-12-09T12:34:24Z",
-			"token_info_uri": "https://www.googleapis.com/oauth2/v3/tokeninfo",
-			"token_response": {
-				"access_token": "credentials.access_token",
-				"expires_in": 3600,
-				"refresh_token": "credentials.refresh_token",
-				"token_type": "Bearer"
-			},
-			"token_uri": "https://accounts.google.com/o/oauth2/token",
-			"user_agent": None
-		}, f)
+    populate_authorized_user_file()
     result = isolated_cli_runner.invoke(gphotos_cl.albums.albums, args)
     assert result.exit_code == 0
     table = asciitable.read(result.output, Reader=asciitable.FixedWidthTwoLine)
