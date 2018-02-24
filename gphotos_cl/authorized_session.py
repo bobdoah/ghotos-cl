@@ -69,4 +69,4 @@ def save_credentials(creds, authorized_user_file):
 @click.option('--headless/--no-headless', default=False, help="Run in headless mode and present a URL on the console, rather than running a webserver")
 def authorize(client_secrets, authorized_user_file, headless):
     session = get_session_from_client_secrets(client_secrets, headless)
-    save_credentials(session, authorized_user_file)
+    save_credentials(session.credentials, authorized_user_file)

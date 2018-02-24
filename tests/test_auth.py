@@ -34,14 +34,18 @@ def test_authorize(mocker, isolated_cli_runner, headless):
     credentials_mock = mocker.MagicMock()
     credentials_mock.configure_mock(**model_spec)
 
+    authorized_session_mock = mocker.Mock()
+    authorized_session_mock.credentials = credentials_mock
+
     gphotos_cl.authorized_session.InstalledAppFlow.from_client_secrets_file.return_value = (gphotos_cl.authorized_session.InstalledAppFlow())
-    gphotos_cl.authorized_session.InstalledAppFlow().run_local_server.return_value = credentials_mock
-    gphotos_cl.authorized_session.InstalledAppFlow().run_console = credentials_mock
-    gphotos_cl.authorized_session.InstalledAppFlow().authorized_session.return_value = credentials_mock
+    gphotos_cl.authorized_session.InstalledAppFlow().run_local_server.return_value = authorized_session_mock
+    gphotos_cl.authorized_session.InstalledAppFlow().run_console = authorized_session_mock
+    gphotos_cl.authorized_session.InstalledAppFlow().authorized_session.return_value = authorized_session_mock
     args = ['client_secrets.json']
     if headless:
         args.append('--headless')
-    result = isolated_cli_runner.invoke(gphotos_cl.authorized_session.authorize, args)
+    result = isolated_cli_runner.invoke(gphotos_cl.authorized_session.authorize, args, catch_exceptions=False)
+    assert not result.exception
     assert result.exit_code == 0 
     assert result.output == ''
     assert os.path.exists(gphotos_cl.authorized_session.GOOGLE_AUTHORIZED_USER_FILE)
